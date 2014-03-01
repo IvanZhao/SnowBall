@@ -57,7 +57,7 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
         mSurfaceHolder.addCallback(this);
         setFocusable(true);
         mScreenHeight = dm.heightPixels;
-        mBackgroundImage = scaleBitmapByHeight(R.drawable.map2,
+        mBackgroundImage = scaleBitmapByHeight(R.drawable.background,
                 dm.heightPixels);
         mLandImage = scaleBitmapByHeight(R.drawable.map2,
                 dm.heightPixels / 3);
@@ -82,7 +82,7 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
 
     private void draw() {
         drawBackground();
-        drawLand();
+        //drawLand();
     }
 
     private void drawLand() {
@@ -98,9 +98,9 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
         if(mLandX2 <= -mLandWidth) {
             mLandX2 = mLandWidth * 2;
         }
-        mLandX0 -= 50;
-        mLandX1 -= 50;
-        mLandX2 -= 50;
+        mLandX0 -= 3;
+        mLandX1 -= 3;
+        mLandX2 -= 3;
     }
 
     private void drawBackground() {
