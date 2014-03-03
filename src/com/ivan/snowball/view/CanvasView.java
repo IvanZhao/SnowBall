@@ -22,8 +22,11 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
     private Canvas mCanvas = null;
     private Context mContext = null;
     private SurfaceHolder mSurfaceHolder = null;
+
     private Bitmap mBackgroundImage = null;
     private Bitmap mLandImage = null;
+    private Bitmap mBall = null;
+
     private Thread mThread = null;
     private Paint mPaint = null;
     private int mPaintY0 = 0;
