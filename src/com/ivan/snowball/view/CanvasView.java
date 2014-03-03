@@ -59,8 +59,7 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
         mScreenHeight = dm.heightPixels;
         mBackgroundImage = scaleBitmapByHeight(R.drawable.background,
                 dm.heightPixels);
-        mLandImage = scaleBitmapByHeight(R.drawable.map2,
-                dm.heightPixels / 3);
+        mLandImage = scaleBitmapByHeight(R.drawable.land, 0);
         mPaint = new Paint();
         mPaintY0 = 0;
         mPaintY1 = mBackgroundImage.getWidth();
@@ -72,23 +71,31 @@ public class CanvasView extends SurfaceView implements Callback, Runnable {
     }
 
     private Bitmap scaleBitmapByHeight(int resId, int dstHeight) {
-        Bitmap bitmap = readBitMap(mContext, resId);
-        float height = (float)bitmap.getHeight();
-        float width = (float)bitmap.getWidth();
-        int dstWidth = ((Float)((float)dstHeight / height * width)).intValue();
-        return Bitmap.createScaledBitmap(bitmap,
-                dstWidth, dstHeight, true);
+    	if(dstHeight == 0) {
+            return readBitMap(mContext, resId);
+    	} else {
+            Bitmap bitmap = readBitMap(mContext, resId);
+            float height = (float)bitmap.getHeight();
+            float width = (float)bitmap.getWidth();
+            int dstWidth = ((Float)((float)dstHeight / height * width))
+                    .intValue();
+            return Bitmap.createScaledBitmap(bitmap,
+                    dstWidth, dstHeight, true);
+    	}
     }
 
     private void draw() {
         drawBackground();
-        //drawLand();
+        drawLand();
     }
 
     private void drawLand() {
-        mCanvas.drawBitmap(mLandImage, mLandX0, mScreenHeight * 2 / 3, mPaint);
-        mCanvas.drawBitmap(mLandImage, mLandX1, mScreenHeight * 2 / 3, mPaint);
-        mCanvas.drawBitmap(mLandImage, mLandX2, mScreenHeight * 2 / 3, mPaint);
+        mCanvas.drawBitmap(mLandImage, mLandX0,
+                mScreenHeight - mLandImage.getHeight(), mPaint);
+        mCanvas.drawBitmap(mLandImage, mLandX1,
+                mScreenHeight - mLandImage.getHeight(), mPaint);
+        mCanvas.drawBitmap(mLandImage, mLandX2,
+                mScreenHeight - mLandImage.getHeight(), mPaint);
         if(mLandX0 <= -mLandWidth) {
             mLandX0 = mLandWidth * 2;
         }
