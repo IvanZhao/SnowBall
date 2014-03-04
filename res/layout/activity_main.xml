@@ -5,6 +5,7 @@
     tools:context=".MainActivity" >
 
     <com.ivan.snowball.view.CanvasView
+        android:id="@+id/canvas_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"

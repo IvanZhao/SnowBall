@@ -12,16 +12,19 @@ public final class R {
     }
     public static final class drawable {
         public static final int background=0x7f020000;
-        public static final int bg_people_updates_holo=0x7f020001;
-        public static final int detail_photo_border=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int land=0x7f020004;
-        public static final int map=0x7f020005;
-        public static final int map2=0x7f020006;
-        public static final int panel_favorites_holo_light=0x7f020007;
+        public static final int ball=0x7f020001;
+        public static final int ball2=0x7f020002;
+        public static final int bg_people_updates_holo=0x7f020003;
+        public static final int detail_photo_border=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
+        public static final int land=0x7f020006;
+        public static final int map=0x7f020007;
+        public static final int map2=0x7f020008;
+        public static final int panel_favorites_holo_light=0x7f020009;
     }
     public static final class id {
-        public static final int menu_settings=0x7f070000;
+        public static final int canvas_view=0x7f070000;
+        public static final int menu_settings=0x7f070001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
