@@ -1,5 +1,8 @@
 package com.ivan.snowball.model;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -11,6 +14,9 @@ public class Ball extends Element {
     private Point mBlockPosition = null;
     private Ground mGround = null;
     private float mBallRotate = 0;
+    private float mJumpSpeed = 20;
+    private boolean mJumping = false;
+    private boolean mDowning = false;
 
     public Ball(Bitmap ballImage, Ground ground, int canvasH, int canvasW) {
         super(ballImage, canvasH, canvasW);
@@ -18,7 +24,7 @@ public class Ball extends Element {
         mBlockPosition = new Point(mCanvasHeight / 5,
                 mCanvasHeight - mGround.getFloorHeight() -
                 ballImage.getHeight());
-        mPosition = mBlockPosition;
+        mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
     }
 
     private float calcBallRotateSpeed(int r) {
@@ -27,7 +33,38 @@ public class Ball extends Element {
     }
 
     public void jump() {
-        
+        if(mJumping || mDowning) {
+            return;
+        }
+        mJumping = true;
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+
+            @Override
+            public void run() {
+                mJumping = false;
+                mDowning = true;
+                while(mPosition.y < mBlockPosition.y) {
+                    mPosition.y++;
+                }
+                mDowning = false;
+            }
+        };
+        timer.schedule(task, 4000);
+        new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    while(mJumping) {
+                        mPosition.y--;
+                        Thread.sleep(100);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
