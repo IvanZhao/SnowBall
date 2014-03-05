@@ -3,7 +3,6 @@ package com.ivan.snowball.model;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 
 public class Ground extends Element {
     private int mLeft0 = 0;
@@ -49,10 +48,6 @@ public class Ground extends Element {
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        Log.d("IVANDEBUG", "---------------------------------------------");
-        Log.d("IVANDEBUG", "pic1 left: " + mLeft0 + ", right: " + (mLeft0 + mImage.getWidth()));
-        Log.d("IVANDEBUG", "pic2 left: " + mLeft1 + ", right: " + (mLeft1 + mImage.getWidth()));
-        Log.d("IVANDEBUG", "pic3 left: " + mLeft2 + ", right: " + (mLeft2 + mImage.getWidth()));
         canvas.drawBitmap(mImage, mLeft0,
                 mCanvasHeight - mImage.getHeight(), paint);
         canvas.drawBitmap(mImage, mLeft1,

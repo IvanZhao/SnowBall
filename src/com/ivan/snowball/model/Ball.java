@@ -1,7 +1,7 @@
 package com.ivan.snowball.model;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.ivan.snowball.utils.SnowBallUtil;
+import com.ivan.snowball.utils.SnowBallUtil.Hurts;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,13 +10,13 @@ import android.graphics.Paint;
 import android.graphics.Point;
 
 public class Ball extends Element {
+    private int mLife = 100;
     private Point mPosition = null;
     private Point mBlockPosition = null;
     private Ground mGround = null;
     private float mBallRotate = 0;
-    private float mJumpSpeed = 20;
+    private float v0 = 10;
     private boolean mJumping = false;
-    private boolean mDowning = false;
 
     public Ball(Bitmap ballImage, Ground ground, int canvasH, int canvasW) {
         super(ballImage, canvasH, canvasW);
@@ -32,35 +32,71 @@ public class Ball extends Element {
         return x.floatValue();
     }
 
+    public int getLife() {
+        return mLife;
+    }
+
+    public void gotHurt(Hurts hurt) {
+        mLife -= SnowBallUtil.HurtValue[hurt.ordinal()];
+        if(mLife < SnowBallUtil.MIN_LIFE) {
+            dead();
+        }
+    }
+
+    public void dead() {
+    }
+
     public void jump() {
-        if(mJumping || mDowning) {
+        if(mJumping) {
             return;
         }
         mJumping = true;
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-
-            @Override
-            public void run() {
-                mJumping = false;
-                mDowning = true;
-                while(mPosition.y < mBlockPosition.y) {
-                    mPosition.y++;
-                }
-                mDowning = false;
-            }
-        };
-        timer.schedule(task, 4000);
         new Thread() {
 
             @Override
             public void run() {
                 try {
-                    while(mJumping) {
-                        mPosition.y--;
-                        Thread.sleep(100);
+                    long t0 = System.currentTimeMillis();
+                    double t;
+                    Double s = 0.0;
+                    boolean start = false;
+                    boolean jumping = true;
+                    boolean rebounding = true;
+                    while(jumping) {
+                        t = (System.currentTimeMillis() - t0) / 1000.0;
+                        s = (v0 * t + SnowBallUtil.G * t * t) * 100;
+                        if(!start && s.intValue() > 0) {
+                            start = true;
+                        }
+                        if(s.intValue() <= 0) {
+                            mPosition.y = mBlockPosition.y;
+                        } else {
+                            mPosition.y = mBlockPosition.y - s.intValue();
+                        }
+                        if(start && s.intValue() <= 0) {
+                            jumping = false;
+                        }
                     }
-                } catch (Exception e) {
+                    t0 = System.currentTimeMillis();
+                    start = false;
+                    while(rebounding) {
+                        t = (System.currentTimeMillis() - t0) / 1000.0;
+                        s = (v0 / 3 * t + SnowBallUtil.G * t * t) * 100;
+                        if(!start && s.intValue() > 0) {
+                            start = true;
+                        }
+                        if(s.intValue() <= 0) {
+                            mPosition.y = mBlockPosition.y;
+                        } else {
+                            mPosition.y = mBlockPosition.y - s.intValue();
+                        }
+                        if(start && s.intValue() <= 0) {
+                            rebounding = false;
+                        }
+                    }
+                    mJumping = false;
+                    gotHurt(Hurts.FALL);
+                } catch(Exception e) {
                     e.printStackTrace();
                 }
             }
