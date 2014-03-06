@@ -85,7 +85,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     @Override
     public void onClick(View arg0) {
-        mBall.jump();
+        new Thread() {
+
+            @Override
+            public void run() {
+                mBall.jump();
+            }
+        }.start();
     }
 
 }

@@ -19,6 +19,8 @@ public class Ball extends Element {
     private double v0 = 0;
     private double vt = 0;
     private boolean mJumping = false;
+    private boolean mTouch = false;
+    private Object mLock = new Object();
     private Thread mJumpThread = new Thread() {
 
         @Override
@@ -28,17 +30,28 @@ public class Ball extends Element {
                 long t0 = System.currentTimeMillis();
                 double t;
                 Double s = 0.0;
+                int s0 = 0;
                 boolean start = false;
                 boolean jumping = true;
                 boolean rebounding = true;
-                while(jumping && mJumping) {
-                    t = (System.currentTimeMillis() - t0) / 1000.0;
-                    s = (v0 * t + SnowBallUtil.G * t * t) * 100;
-                    vt = v0 + SnowBallUtil.G * t;
+                while(jumping) {
+                    if(mTouch) {
+                        Thread.sleep(10);
+                    }
+                    synchronized(mLock) {
+                        if(mTouch) {
+                            mTouch = false;
+                            t0 = System.currentTimeMillis();
+                            s0 = mBlockPosition.y - mPosition.y;
+                        }
+                        t = (System.currentTimeMillis() - t0) / 1000.0;
+                        s = (v0 * t + SnowBallUtil.G * t * t) * 100 + s0;
+                        vt = v0 + 2 * SnowBallUtil.G * t;
+                    }
                     if(!start && mPosition.y < mBlockPosition.y) {
                         start = true;
                     }
-                    if(mPosition.y >= mBlockPosition.y) {
+                    if(mPosition.y > mBlockPosition.y) {
                         mPosition.y = mBlockPosition.y;
                     } else {
                         mPosition.y = mBlockPosition.y - s.intValue();
@@ -47,27 +60,36 @@ public class Ball extends Element {
                         jumping = false;
                     }
                 }
-                t0 = System.currentTimeMillis();
-                start = false;
-                if(Math.abs(vt) < 3) {
+                if(Math.abs(vt) <= 6) {
+                    v0 = SPEED0;
+                    vt = 0.0;
+                    mTouch = false;
                     mJumping = false;
                     return;
                 }
-                while(rebounding && mJumping) {
+                t0 = System.currentTimeMillis();
+                start = false;
+                s = 0.0;
+                mPosition.y = mBlockPosition.y;
+                v0 = Math.abs(vt);
+                while(rebounding) {
                     t = (System.currentTimeMillis() - t0) / 1000.0;
                     s = (v0 / 3 * t + SnowBallUtil.G * t * t) * 100;
-                    if(!start && s.intValue() > 0) {
+                    if(!start && mPosition.y < mBlockPosition.y) {
                         start = true;
                     }
-                    if(s.intValue() <= 0) {
+                    if(mPosition.y > mBlockPosition.y) {
                         mPosition.y = mBlockPosition.y;
                     } else {
                         mPosition.y = mBlockPosition.y - s.intValue();
                     }
-                    if(start && s.intValue() <= 0) {
+                    if(start && mPosition.y == mBlockPosition.y) {
                         rebounding = false;
                     }
                 }
+                v0 = SPEED0;
+                vt = 0.0;
+                mTouch = false;
                 mJumping = false;
                 gotHurt(Hurts.FALL);
             } catch(Exception e) {
@@ -110,13 +132,14 @@ public class Ball extends Element {
         }
         if(!mJumping) {
             v0 = SPEED0;
+            vt = v0;
+            mJumpThread.run();
         } else {
-            v0 = -vt / 2;
+            mTouch = true;
+            synchronized(mLock) {
+                v0 = -vt / 2;
+            }
         }
-        if(mJumpThread.isAlive()) {
-            mJumping = false;
-        }
-        mJumpThread.start();
     }
 
     @Override
