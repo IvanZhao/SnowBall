@@ -12,6 +12,8 @@ import android.graphics.Point;
 public class Ball extends Element {
     private final float SPEED0 = 10;
     private int mLife = 100;
+    private int mSize = 0;
+    private int mDistance = 0;
     private Point mPosition = null;
     private Point mBlockPosition = null;
     private Ground mGround = null;
@@ -21,6 +23,7 @@ public class Ball extends Element {
     private boolean mJumping = false;
     private boolean mTouch = false;
     private Object mLock = new Object();
+
     private Thread mJumpThread = new Thread() {
 
         @Override
@@ -36,7 +39,7 @@ public class Ball extends Element {
                 boolean rebounding = true;
                 while(jumping) {
                     if(mTouch) {
-                        Thread.sleep(10);
+                        Thread.sleep(1);
                     }
                     synchronized(mLock) {
                         if(mTouch) {
@@ -101,6 +104,7 @@ public class Ball extends Element {
     public Ball(Bitmap ballImage, Ground ground, int canvasH, int canvasW) {
         super(ballImage, canvasH, canvasW);
         mGround = ground;
+        mSize = ballImage.getHeight();
         mBlockPosition = new Point(mCanvasHeight / 5,
                 mCanvasHeight - mGround.getFloorHeight() -
                 ballImage.getHeight());
@@ -114,6 +118,24 @@ public class Ball extends Element {
 
     public int getLife() {
         return mLife;
+    }
+
+    public void grow() {
+        Double newSize = (mLife / 100.0) * mSize;
+        this.mImage = scaleBitmapBySize(newSize.intValue());
+        mBlockPosition = new Point(mCanvasHeight / 5,
+                mCanvasHeight - mGround.getFloorHeight() -
+                mImage.getHeight());
+        mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
+    }
+
+    private Bitmap scaleBitmapBySize(int size) {
+        if(mSize == size) {
+            return mImage;
+        }
+        mSize = size;
+        return Bitmap.createScaledBitmap(mImage,
+                mSize, mSize, true);
     }
 
     public void gotHurt(Hurts hurt) {
@@ -136,6 +158,9 @@ public class Ball extends Element {
             mJumpThread.run();
         } else {
             mTouch = true;
+            if(Math.abs(vt) >= 8) {
+                this.gotHurt(Hurts.FALL);
+            }
             synchronized(mLock) {
                 v0 = -vt / 2;
             }
@@ -144,6 +169,13 @@ public class Ball extends Element {
 
     @Override
     public void move() {
+        if(mPosition.y == mBlockPosition.y) {
+            mDistance++;
+        }
+        if(mDistance % 100 == 0) {
+            mLife++;
+            grow();
+        }
         mBallRotate = mBallRotate + 
                 calcBallRotateSpeed(mImage.getHeight() / 2);
         if(mBallRotate >= 360) {
