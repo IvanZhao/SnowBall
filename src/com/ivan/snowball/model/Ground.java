@@ -1,5 +1,6 @@
 package com.ivan.snowball.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -9,8 +10,8 @@ public class Ground extends Element {
     private int mLeft1 = 0;
     private int mLeft2 = 0;
 
-    public Ground(Bitmap groundImage, int canvasH, int canvasW) {
-        super(groundImage, canvasH, canvasW);
+    public Ground(Context c, Bitmap groundImage, int canvasH, int canvasW) {
+        super(c, groundImage, canvasH, canvasW);
         mLeft0 = 0;
         mLeft1 = mImageWidth - 1;
         mLeft2 = mImageWidth * 2 - 2;

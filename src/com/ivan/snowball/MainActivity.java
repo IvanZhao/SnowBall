@@ -1,21 +1,19 @@
 package com.ivan.snowball;
 
-import java.io.InputStream;
-
 import com.ivan.snowball.model.BackGround;
 import com.ivan.snowball.model.Ball;
 import com.ivan.snowball.model.Ground;
+import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.view.CanvasView;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -29,16 +27,20 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
         mCanvasView = (CanvasView) this.findViewById(R.id.canvas_view);
         mCanvasView.setActivity(this);
         mCanvasView.setOnClickListener(this);
         DisplayMetrics dm = getResources().getDisplayMetrics();
-        mBackGround = new BackGround(scaleBitmapByHeight(R.drawable.background,
-                dm.heightPixels), dm.heightPixels, dm.widthPixels);
-        mGround = new Ground(scaleBitmapByHeight(R.drawable.land, 0),
+        mBackGround = new BackGround(this,
+                scaleBitmapByHeight(R.drawable.background, dm.heightPixels),
                 dm.heightPixels, dm.widthPixels);
-        mBall = new Ball(scaleBitmapByHeight(R.drawable.ball, 0), mGround,
+        mGround = new Ground(this,
+                scaleBitmapByHeight(R.drawable.land, 0),
                 dm.heightPixels, dm.widthPixels);
+        mBall = new Ball(this,
+                scaleBitmapByHeight(R.drawable.ball3, Utils.INIT_LIFE),
+                mGround, dm.heightPixels, dm.widthPixels);
     }
 
     public BackGround getBackgroundObject() {
@@ -55,9 +57,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private Bitmap scaleBitmapByHeight(int resId, int dstHeight) {
         if(dstHeight == 0) {
-            return readBitMap(this, resId);
+            return Utils.readBitMap(this, resId);
         } else {
-            Bitmap bitmap = readBitMap(this, resId);
+            Bitmap bitmap = Utils.readBitMap(this, resId);
             float height = (float)bitmap.getHeight();
             float width = (float)bitmap.getWidth();
             int dstWidth = ((Float)((float)dstHeight / height * width))
@@ -65,15 +67,6 @@ public class MainActivity extends Activity implements OnClickListener {
             return Bitmap.createScaledBitmap(bitmap,
                     dstWidth, dstHeight, true);
         }
-    }
-
-    public Bitmap readBitMap(Context context, int resId) {
-        BitmapFactory.Options opt = new BitmapFactory.Options();
-        opt.inPreferredConfig = Bitmap.Config.RGB_565;
-        opt.inPurgeable = true;
-        opt.inInputShareable = true;
-        InputStream is = context.getResources().openRawResource(resId);
-        return BitmapFactory.decodeStream(is, null, opt);
     }
 
     @Override
@@ -89,7 +82,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
             @Override
             public void run() {
-                mBall.jump();
+                if(mBall.isAlive()) {
+                    mBall.jump();
+                }
             }
         }.start();
     }

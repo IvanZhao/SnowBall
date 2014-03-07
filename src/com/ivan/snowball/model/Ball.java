@@ -1,8 +1,10 @@
 package com.ivan.snowball.model;
 
-import com.ivan.snowball.utils.SnowBallUtil;
-import com.ivan.snowball.utils.SnowBallUtil.Hurts;
+import com.ivan.snowball.R;
+import com.ivan.snowball.utils.Utils;
+import com.ivan.snowball.utils.Utils.Hurts;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -11,7 +13,7 @@ import android.graphics.Point;
 
 public class Ball extends Element {
     private final float SPEED0 = 10;
-    private int mLife = 100;
+    private int mLife = Utils.INIT_LIFE;
     private int mSize = 0;
     private int mDistance = 0;
     private Point mPosition = null;
@@ -23,6 +25,7 @@ public class Ball extends Element {
     private boolean mJumping = false;
     private boolean mTouch = false;
     private Object mLock = new Object();
+    private boolean mIsAlive = true;
 
     private Thread mJumpThread = new Thread() {
 
@@ -47,9 +50,10 @@ public class Ball extends Element {
                             t0 = System.currentTimeMillis();
                             s0 = mBlockPosition.y - mPosition.y;
                         }
-                        t = (System.currentTimeMillis() - t0) / 1000.0;
-                        s = (v0 * t + SnowBallUtil.G * t * t) * 100 + s0;
-                        vt = v0 + 2 * SnowBallUtil.G * t;
+                        t = (System.currentTimeMillis() - t0) / Utils.SECOND;
+                        s = (v0 * t + Utils.G * t * t) * Utils.ENLARGE_RATE
+                                + s0;
+                        vt = v0 + 2 * Utils.G * t;
                     }
                     if(!start && mPosition.y < mBlockPosition.y) {
                         start = true;
@@ -76,8 +80,8 @@ public class Ball extends Element {
                 mPosition.y = mBlockPosition.y;
                 v0 = Math.abs(vt);
                 while(rebounding) {
-                    t = (System.currentTimeMillis() - t0) / 1000.0;
-                    s = (v0 / 3 * t + SnowBallUtil.G * t * t) * 100;
+                    t = (System.currentTimeMillis() - t0) / Utils.SECOND;
+                    s = (v0 / 3 * t + Utils.G * t * t) * Utils.ENLARGE_RATE;
                     if(!start && mPosition.y < mBlockPosition.y) {
                         start = true;
                     }
@@ -101,8 +105,10 @@ public class Ball extends Element {
         }
     };
 
-    public Ball(Bitmap ballImage, Ground ground, int canvasH, int canvasW) {
-        super(ballImage, canvasH, canvasW);
+    public Ball(Context c, Bitmap ballImage, Ground ground,
+            int canvasH, int canvasW) {
+        super(c, ballImage, canvasH, canvasW);
+        mIsAlive = true;
         mGround = ground;
         mSize = ballImage.getHeight();
         mBlockPosition = new Point(mCanvasHeight / 5,
@@ -121,8 +127,8 @@ public class Ball extends Element {
     }
 
     public void grow() {
-        Double newSize = (mLife / 100.0) * mSize;
-        this.mImage = scaleBitmapBySize(newSize.intValue());
+        Double newSize = (mLife / (double)Utils.INIT_LIFE) * mSize;
+        mImage = scaleBitmapBySize(newSize.intValue());
         mBlockPosition = new Point(mCanvasHeight / 5,
                 mCanvasHeight - mGround.getFloorHeight() -
                 mImage.getHeight());
@@ -133,19 +139,26 @@ public class Ball extends Element {
         if(mSize == size) {
             return mImage;
         }
-        mSize = size;
-        return Bitmap.createScaledBitmap(mImage,
-                mSize, mSize, true);
+        return Bitmap.createScaledBitmap(
+                Utils.readBitMap(mContext, R.drawable.ball3),
+                size, size, true);
     }
 
     public void gotHurt(Hurts hurt) {
-        mLife -= SnowBallUtil.HurtValue[hurt.ordinal()];
-        if(mLife < SnowBallUtil.MIN_LIFE) {
+        mLife -= Utils.HurtValue[hurt.ordinal()];
+        if(mLife < Utils.MIN_LIFE) {
             dead();
+        } else {
+            grow();
         }
     }
 
     public void dead() {
+        mIsAlive = false;
+    }
+
+    public boolean isAlive() {
+        return mIsAlive;
     }
 
     public void jump() {
@@ -158,23 +171,25 @@ public class Ball extends Element {
             mJumpThread.run();
         } else {
             mTouch = true;
-            if(Math.abs(vt) >= 8) {
-                this.gotHurt(Hurts.FALL);
+            if(Math.abs(vt) >= Utils.SAFE_SPEED) {
+                gotHurt(Hurts.FALL);
             }
             synchronized(mLock) {
-                v0 = -vt / 2;
+                v0 = -vt * Utils.SPEED_REDUCE_RATE;
             }
         }
     }
 
     @Override
     public void move() {
-        if(mPosition.y == mBlockPosition.y) {
+        if(!mJumping) {
             mDistance++;
-        }
-        if(mDistance % 100 == 0) {
-            mLife++;
-            grow();
+            if(mDistance % Utils.GROW_DISTANCE == 0) {
+                if(mLife < Utils.MAX_LIFE) {
+                    mLife++;
+                }
+                grow();
+            }
         }
         mBallRotate = mBallRotate + 
                 calcBallRotateSpeed(mImage.getHeight() / 2);

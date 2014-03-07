@@ -71,7 +71,7 @@ public class CanvasView extends SurfaceView implements Callback,
     @Override
     public void run() {
         try {
-            while(true) {
+            while(mActivity.getBallObject().isAlive()) {
                 mCanvas = mSurfaceHolder.lockCanvas();
                 draw();
                 mSurfaceHolder.unlockCanvasAndPost(mCanvas);

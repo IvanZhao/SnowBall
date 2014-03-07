@@ -1,20 +1,23 @@
 package com.ivan.snowball.model;
 
-import com.ivan.snowball.utils.SnowBallUtil;
-import com.ivan.snowball.utils.SnowBallUtil.Gears;
+import com.ivan.snowball.utils.Utils;
+import com.ivan.snowball.utils.Utils.Gears;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public abstract class Element {
+    protected Context mContext = null;
     protected Bitmap mImage = null;
     protected Gears mSpeedGear = Gears.NORMAL;
     protected int mCanvasHeight = 0;
     protected int mCanvasWidth = 0;
     protected int mImageWidth = 0;
 
-    public Element(Bitmap image, int canvasH, int canvasW) {
+    public Element(Context c, Bitmap image, int canvasH, int canvasW) {
+        mContext = c;
         mImage = image;
         mCanvasHeight = canvasH;
         mCanvasWidth = canvasW;
@@ -30,7 +33,7 @@ public abstract class Element {
     }
 
     public int getGameSpeed() {
-        return SnowBallUtil.GameSpeed[mSpeedGear.ordinal()];
+        return Utils.GameSpeed[mSpeedGear.ordinal()];
     }
 
     public void moveAndDraw(Canvas canvas, Paint paint) {
