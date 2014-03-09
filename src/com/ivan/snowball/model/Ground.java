@@ -56,4 +56,11 @@ public class Ground extends Element {
         canvas.drawBitmap(mImage, mLeft2,
                 mCanvasHeight - mImage.getHeight(), paint);
     }
+
+    @Override
+    public void init() {
+        mLeft0 = 0;
+        mLeft1 = mImageWidth - 1;
+        mLeft2 = mImageWidth * 2 - 2;
+    }
 }

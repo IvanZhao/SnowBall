@@ -44,4 +44,6 @@ public abstract class Element {
     public abstract void draw(Canvas canvas, Paint paint);
 
     public abstract void move();
+
+    public abstract void init();
 }

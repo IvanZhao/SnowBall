@@ -36,4 +36,10 @@ public class BackGround extends Element {
         }
     }
 
+    @Override
+    public void init() {
+        mLeft0 = 0;
+        mLeft1 = mImage.getWidth();
+    }
+
 }

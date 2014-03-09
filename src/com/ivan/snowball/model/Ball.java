@@ -1,6 +1,7 @@
 package com.ivan.snowball.model;
 
 import com.ivan.snowball.R;
+import com.ivan.snowball.utils.GameOverListener;
 import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.utils.Utils.Hurts;
 
@@ -26,6 +27,7 @@ public class Ball extends Element {
     private boolean mTouch = false;
     private Object mLock = new Object();
     private boolean mIsAlive = true;
+    private GameOverListener mListener;
 
     private Thread mJumpThread = new Thread() {
 
@@ -117,6 +119,10 @@ public class Ball extends Element {
         mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
     }
 
+    public void setGameOverListener(GameOverListener listener) {
+        mListener = listener;
+    }
+
     private float calcBallRotateSpeed(int r) {
         Double x = 360 * getGameSpeed() / 2 / Math.PI / r;
         return x.floatValue();
@@ -136,9 +142,6 @@ public class Ball extends Element {
     }
 
     private Bitmap scaleBitmapBySize(int size) {
-        if(mSize == size) {
-            return mImage;
-        }
         return Bitmap.createScaledBitmap(
                 Utils.readBitMap(mContext, R.drawable.ball3),
                 size, size, true);
@@ -155,6 +158,9 @@ public class Ball extends Element {
 
     public void dead() {
         mIsAlive = false;
+        if(mListener != null) {
+            mListener.onGameOver();
+        }
     }
 
     public boolean isAlive() {
@@ -178,6 +184,10 @@ public class Ball extends Element {
                 v0 = -vt * Utils.SPEED_REDUCE_RATE;
             }
         }
+    }
+
+    public int getDistance() {
+        return mDistance;
     }
 
     @Override
@@ -206,5 +216,17 @@ public class Ball extends Element {
                 mPosition.x + mImage.getWidth() / 2,
                 mPosition.y + mImage.getHeight() / 2);
         canvas.drawBitmap(mImage, matrix, paint);
+    }
+
+    @Override
+    public void init() {
+        mIsAlive = true;
+        mDistance = 0;
+        mLife = Utils.INIT_LIFE;
+        mImage = scaleBitmapBySize(mSize);
+        mBlockPosition = new Point(mCanvasHeight / 5,
+                mCanvasHeight - mGround.getFloorHeight() -
+                mImage.getHeight());
+        mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
     }
 }

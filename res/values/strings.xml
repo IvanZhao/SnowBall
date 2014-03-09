@@ -4,5 +4,10 @@
     <string name="app_name">SnowBall</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="dialog_run">Try again</string>
+    <string name="dialog_exit">Exit</string>
+    <string name="dialog_order">Rank</string>
+    <string name="dialog_string_score">SCORE</string>
+    <string name="dialog_string_best">BEST</string>
 
 </resources>

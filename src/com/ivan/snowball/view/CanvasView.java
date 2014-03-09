@@ -52,6 +52,11 @@ public class CanvasView extends SurfaceView implements Callback,
         mActivity.getBallObject().moveAndDraw(mCanvas, mPaint);
     }
 
+    public void startGame() {
+        mThread = new Thread(this);
+        mThread.start();
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         mThread = new Thread(this);
