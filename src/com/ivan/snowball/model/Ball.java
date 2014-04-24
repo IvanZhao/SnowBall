@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.AsyncTask;
 
 public class Ball extends Element {
     private final float SPEED0 = 10;
@@ -28,6 +29,7 @@ public class Ball extends Element {
     private Object mLock = new Object();
     private boolean mIsAlive = true;
     private GameOverListener mListener;
+    private boolean mShowHurt = false;
 
     private Thread mJumpThread = new Thread() {
 
@@ -69,7 +71,7 @@ public class Ball extends Element {
                         jumping = false;
                     }
                 }
-                if(Math.abs(vt) <= 6) {
+                if(Math.abs(vt) <= Utils.SAFE_SPEED) {
                     v0 = SPEED0;
                     vt = 0.0;
                     mTouch = false;
@@ -101,6 +103,7 @@ public class Ball extends Element {
                 mTouch = false;
                 mJumping = false;
                 gotHurt(Hurts.FALL);
+                mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -141,22 +144,51 @@ public class Ball extends Element {
         mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
     }
 
+    public void shrink() {
+        Double newSize = (mLife / (double)Utils.INIT_LIFE) * mSize;
+        mImage = scaleBitmapBySize(newSize.intValue());
+        mBlockPosition = new Point(mCanvasHeight / 5,
+                mCanvasHeight - mGround.getFloorHeight() -
+                mImage.getHeight());
+    }
+
     private Bitmap scaleBitmapBySize(int size) {
         return Bitmap.createScaledBitmap(
                 Utils.readBitMap(mContext, R.drawable.ball3),
                 size, size, true);
     }
 
+    public void showHurt() {
+        mShowHurt = true;
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    Thread.sleep(500);
+                    mShowHurt = false;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.execute();
+    }
+
     public void gotHurt(Hurts hurt) {
         mLife -= Utils.HurtValue[hurt.ordinal()];
+        showHurt();
         if(mLife < Utils.MIN_LIFE) {
             dead();
         } else {
-            grow();
+            shrink();
         }
     }
 
-    public void dead() {
+    synchronized public void dead() {
+        if(!mIsAlive) {
+            return;
+        }
         mIsAlive = false;
         if(mListener != null) {
             mListener.onGameOver();
@@ -177,10 +209,10 @@ public class Ball extends Element {
             mJumpThread.run();
         } else {
             mTouch = true;
-            if(Math.abs(vt) >= Utils.SAFE_SPEED) {
-                gotHurt(Hurts.FALL);
-            }
             synchronized(mLock) {
+                if(Math.abs(vt) >= Utils.SAFE_SPEED) {
+                    gotHurt(Hurts.FALL);
+                }
                 v0 = -vt * Utils.SPEED_REDUCE_RATE;
             }
         }
@@ -192,8 +224,8 @@ public class Ball extends Element {
 
     @Override
     public void move() {
+        mDistance++;
         if(!mJumping) {
-            mDistance++;
             if(mDistance % Utils.GROW_DISTANCE == 0) {
                 if(mLife < Utils.MAX_LIFE) {
                     mLife++;
@@ -215,7 +247,13 @@ public class Ball extends Element {
         matrix.postRotate(mBallRotate,
                 mPosition.x + mImage.getWidth() / 2,
                 mPosition.y + mImage.getHeight() / 2);
-        canvas.drawBitmap(mImage, matrix, paint);
+        if(mShowHurt) {
+           if((mDistance / 2) % 2 == 0) {
+               canvas.drawBitmap(mImage, matrix, paint);
+           }
+        } else {
+            canvas.drawBitmap(mImage, matrix, paint);
+        }
     }
 
     @Override

@@ -112,6 +112,7 @@ public class MainActivity extends Activity implements OnClickListener,
                         R.style.CustomDialog);
                 int score = mBall.getDistance();
                 dialog.setContentView(R.layout.custom_dialog_layout);
+                dialog.setCancelable(false);
                 Window window = dialog.getWindow();
                 window.setWindowAnimations(R.style.dialog_anim_style);
                 window.setBackgroundDrawableResource(

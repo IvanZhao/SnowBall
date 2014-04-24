@@ -20,7 +20,7 @@ public class Utils {
     public static final int MIN_LIFE = 30;
 
     public static final int GROW_DISTANCE = 100;
-    public static final int SAFE_SPEED = 8;
+    public static final int SAFE_SPEED = 6;
     public static final double SPEED_REDUCE_RATE = 0.5;
     public static final double SECOND = 1000.0;
     public static final double ENLARGE_RATE = 100.0;
