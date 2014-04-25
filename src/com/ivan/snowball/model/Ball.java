@@ -14,7 +14,7 @@ import android.graphics.Point;
 import android.os.AsyncTask;
 
 public class Ball extends Element {
-    private final float SPEED0 = 10;
+    private float SPEED0 = 10;
     private int mLife = Utils.INIT_LIFE;
     private int mSize = 0;
     private int mDistance = 0;
@@ -131,11 +131,18 @@ public class Ball extends Element {
         return x.floatValue();
     }
 
+    private float calcSpeed0() {
+        int s = (mCanvasHeight - mImage.getHeight() -
+                4 * mGround.getFloorHeight()) / 100;
+        float t = 10f / 9.8f;
+        return (s - Utils.G * t * t) / t;
+    }
+
     public int getLife() {
         return mLife;
     }
 
-    public void grow() {
+    private void grow() {
         Double newSize = (mLife / (double)Utils.INIT_LIFE) * mSize;
         mImage = scaleBitmapBySize(newSize.intValue());
         mBlockPosition = new Point(mCanvasHeight / 5,
@@ -144,7 +151,7 @@ public class Ball extends Element {
         mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
     }
 
-    public void shrink() {
+    private void shrink() {
         Double newSize = (mLife / (double)Utils.INIT_LIFE) * mSize;
         mImage = scaleBitmapBySize(newSize.intValue());
         mBlockPosition = new Point(mCanvasHeight / 5,
@@ -158,7 +165,7 @@ public class Ball extends Element {
                 size, size, true);
     }
 
-    public void showHurt() {
+    private void showHurt() {
         mShowHurt = true;
         new AsyncTask<Void, Void, Void>() {
 
@@ -185,7 +192,7 @@ public class Ball extends Element {
         }
     }
 
-    synchronized public void dead() {
+    synchronized private void dead() {
         if(!mIsAlive) {
             return;
         }
@@ -204,6 +211,7 @@ public class Ball extends Element {
             return;
         }
         if(!mJumping) {
+            SPEED0 = calcSpeed0();
             v0 = SPEED0;
             vt = v0;
             mJumpThread.run();

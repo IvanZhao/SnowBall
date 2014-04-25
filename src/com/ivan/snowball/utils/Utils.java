@@ -23,7 +23,7 @@ public class Utils {
     public static final int SAFE_SPEED = 6;
     public static final double SPEED_REDUCE_RATE = 0.5;
     public static final double SECOND = 1000.0;
-    public static final double ENLARGE_RATE = 100.0;
+    public static final float ENLARGE_RATE = 100.0f;
 
     public static Bitmap readBitMap(Context context, int resId) {
         BitmapFactory.Options opt = new BitmapFactory.Options();

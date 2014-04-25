@@ -50,6 +50,7 @@ public class CanvasView extends SurfaceView implements Callback,
         mActivity.getBackgroundObject().moveAndDraw(mCanvas, mPaint);
         mActivity.getGroundObject().moveAndDraw(mCanvas, mPaint);
         mActivity.getBallObject().moveAndDraw(mCanvas, mPaint);
+        mActivity.getHPObject().moveAndDraw(mCanvas, mPaint);
     }
 
     public void startGame() {

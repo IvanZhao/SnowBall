@@ -21,7 +21,8 @@ public abstract class Element {
         mImage = image;
         mCanvasHeight = canvasH;
         mCanvasWidth = canvasW;
-        mImageWidth = mImage.getWidth();
+        if(mImage != null)
+            mImageWidth = mImage.getWidth();
     }
 
     public void setGameSpeed(Gears gear) {

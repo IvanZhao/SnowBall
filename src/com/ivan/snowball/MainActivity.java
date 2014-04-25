@@ -3,6 +3,7 @@ package com.ivan.snowball;
 import com.ivan.snowball.model.BackGround;
 import com.ivan.snowball.model.Ball;
 import com.ivan.snowball.model.Ground;
+import com.ivan.snowball.model.HealthPoint;
 import com.ivan.snowball.utils.GameOverListener;
 import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.view.CanvasView;
@@ -10,17 +11,14 @@ import com.ivan.snowball.view.CanvasView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -30,6 +28,7 @@ public class MainActivity extends Activity implements OnClickListener,
     private BackGround mBackGround = null;
     private Ground mGround = null;
     private Ball mBall = null;
+    private HealthPoint mHP = null;
     private Handler mHandler = new Handler();
     private GameController mGC = null;
 
@@ -55,6 +54,7 @@ public class MainActivity extends Activity implements OnClickListener,
                 mGround, dm.heightPixels, dm.widthPixels);
         mBall.setGameOverListener(this);
         mGC = new GameController(mBackGround, mGround, mBall);
+        mHP = new HealthPoint(this, dm.heightPixels, dm.widthPixels, mBall);
     }
 
     public BackGround getBackgroundObject() {
@@ -67,6 +67,10 @@ public class MainActivity extends Activity implements OnClickListener,
 
     public Ball getBallObject() {
         return mBall;
+    }
+
+    public HealthPoint getHPObject() {
+        return mHP;
     }
 
     private Bitmap scaleBitmapByHeight(int resId, int dstHeight) {
