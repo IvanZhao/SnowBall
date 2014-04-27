@@ -8,11 +8,16 @@ import android.graphics.Bitmap;
 public abstract class Obstacle extends Element {
 
     protected int mHeight;
+    protected int mLeft;
     protected Hurts mType;
-    protected static final int MAX_HEIGHT = 100;
+    protected ObstacleCallBackListener mListener;
+    protected Ground mGround;
 
-    public Obstacle(Context c, Bitmap image, int canvasH, int canvasW) {
+    public Obstacle(Context c, Bitmap image, int canvasH, int canvasW,
+            Ground ground, ObstacleCallBackListener listener) {
         super(c, image, canvasH, canvasW);
+        mListener = listener;
+        mGround = ground;
     }
 
     public void hurtYou(Ball ball) {

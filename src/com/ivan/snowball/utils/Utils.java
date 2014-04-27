@@ -25,6 +25,8 @@ public class Utils {
     public static final double SECOND = 1000.0;
     public static final float ENLARGE_RATE = 100.0f;
 
+    public static int MAX_HEIGHT = 0;
+
     public static Bitmap readBitMap(Context context, int resId) {
         BitmapFactory.Options opt = new BitmapFactory.Options();
         opt.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -32,5 +34,20 @@ public class Utils {
         opt.inInputShareable = true;
         InputStream is = context.getResources().openRawResource(resId);
         return BitmapFactory.decodeStream(is, null, opt);
+    }
+
+    public static Bitmap scaleBitmapByHeight(Context c,
+            int resId, int dstHeight) {
+        if(dstHeight == 0) {
+            return Utils.readBitMap(c, resId);
+        } else {
+            Bitmap bitmap = Utils.readBitMap(c, resId);
+            float height = (float)bitmap.getHeight();
+            float width = (float)bitmap.getWidth();
+            int dstWidth = ((Float)((float)dstHeight / height * width))
+                    .intValue();
+            return Bitmap.createScaledBitmap(bitmap,
+                    dstWidth, dstHeight, true);
+        }
     }
 }

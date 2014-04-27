@@ -1,5 +1,7 @@
 package com.ivan.snowball.model;
 
+import com.ivan.snowball.R;
+import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.utils.Utils.Hurts;
 
 import android.content.Context;
@@ -9,32 +11,38 @@ import android.graphics.Paint;
 
 public class Tree extends Obstacle {
 
-    public Tree(Context c, Bitmap image, int canvasH, int canvasW) {
-        super(c, image, canvasH, canvasW);
-        mHeight = (int)(Math.random() * MAX_HEIGHT);
-        if(mHeight >= MAX_HEIGHT / 2) {
+    public Tree(Context c, int canvasH, int canvasW,
+            Ground ground, ObstacleCallBackListener listener) {
+        super(c, null, canvasH, canvasW, ground, listener);
+        mHeight = (int)(Utils.MAX_HEIGHT);
+        if(mHeight >= Utils.MAX_HEIGHT / 2) {
             mType = Hurts.BIG_TREE;
         } else {
             mType = Hurts.SMALL_TREE;
         }
+        init();
     }
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        // TODO Auto-generated method stub
-
+        canvas.drawBitmap(mImage, mLeft, 
+                mCanvasHeight - mImage.getHeight() -
+                mGround.getFloorHeight(), paint);
     }
 
     @Override
     public void move() {
-        // TODO Auto-generated method stub
-
+        mLeft--;
+        if(mLeft <= -mImage.getWidth()) {
+            mListener.onMoveOut(this);
+        }
     }
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
-
+        mImage = Utils.scaleBitmapByHeight(mContext,
+                R.drawable.tree, mHeight);
+        mLeft = mCanvasWidth;
     }
 
 }

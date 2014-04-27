@@ -1,5 +1,7 @@
 package com.ivan.snowball;
 
+import com.ivan.snowball.control.GameController;
+import com.ivan.snowball.control.ObstacleController;
 import com.ivan.snowball.model.BackGround;
 import com.ivan.snowball.model.Ball;
 import com.ivan.snowball.model.Ground;
@@ -31,6 +33,7 @@ public class MainActivity extends Activity implements OnClickListener,
     private HealthPoint mHP = null;
     private Handler mHandler = new Handler();
     private GameController mGC = null;
+    private ObstacleController mOC = null;
 
     private CanvasView mCanvasView = null;
 
@@ -44,17 +47,24 @@ public class MainActivity extends Activity implements OnClickListener,
         mCanvasView.setOnClickListener(this);
         DisplayMetrics dm = getResources().getDisplayMetrics();
         mBackGround = new BackGround(this,
-                scaleBitmapByHeight(R.drawable.background, dm.heightPixels),
+                Utils.scaleBitmapByHeight(this,
+                        R.drawable.background, dm.heightPixels),
                 dm.heightPixels, dm.widthPixels);
         mGround = new Ground(this,
-                scaleBitmapByHeight(R.drawable.land, 0),
+                Utils.scaleBitmapByHeight(this,
+                        R.drawable.land, 0),
                 dm.heightPixels, dm.widthPixels);
         mBall = new Ball(this,
-                scaleBitmapByHeight(R.drawable.ball3, Utils.INIT_LIFE),
+                Utils.scaleBitmapByHeight(this,
+                        R.drawable.ball3, Utils.INIT_LIFE),
                 mGround, dm.heightPixels, dm.widthPixels);
         mBall.setGameOverListener(this);
         mGC = new GameController(mBackGround, mGround, mBall);
         mHP = new HealthPoint(this, dm.heightPixels, dm.widthPixels, mBall);
+        Utils.MAX_HEIGHT = dm.heightPixels - mBall.getHeight() -
+                4 * mGround.getFloorHeight();
+        mOC = new ObstacleController(this, mBall, mGround,
+                dm.heightPixels, dm.widthPixels);
     }
 
     public BackGround getBackgroundObject() {
@@ -73,18 +83,8 @@ public class MainActivity extends Activity implements OnClickListener,
         return mHP;
     }
 
-    private Bitmap scaleBitmapByHeight(int resId, int dstHeight) {
-        if(dstHeight == 0) {
-            return Utils.readBitMap(this, resId);
-        } else {
-            Bitmap bitmap = Utils.readBitMap(this, resId);
-            float height = (float)bitmap.getHeight();
-            float width = (float)bitmap.getWidth();
-            int dstWidth = ((Float)((float)dstHeight / height * width))
-                    .intValue();
-            return Bitmap.createScaledBitmap(bitmap,
-                    dstWidth, dstHeight, true);
-        }
+    public ObstacleController getObstacleController() {
+        return mOC;
     }
 
     @Override

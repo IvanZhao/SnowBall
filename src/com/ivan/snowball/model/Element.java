@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-public abstract class Element {
+public abstract class Element implements ElementInterface {
     protected Context mContext = null;
     protected Bitmap mImage = null;
     protected Gears mSpeedGear = Gears.NORMAL;
@@ -37,14 +37,9 @@ public abstract class Element {
         return Utils.GameSpeed[mSpeedGear.ordinal()];
     }
 
+    @Override
     public void moveAndDraw(Canvas canvas, Paint paint) {
         draw(canvas, paint);
         move();
     }
-
-    public abstract void draw(Canvas canvas, Paint paint);
-
-    public abstract void move();
-
-    public abstract void init();
 }

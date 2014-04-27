@@ -43,6 +43,7 @@ public final class R {
         public static final int map2=0x7f020013;
         public static final int panel_favorites_holo_light=0x7f020014;
         public static final int shape_dialog_bg=0x7f020015;
+        public static final int tree=0x7f020016;
     }
     public static final class id {
         public static final int button_exit=0x7f0a0008;

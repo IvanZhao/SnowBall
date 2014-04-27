@@ -142,6 +142,10 @@ public class Ball extends Element {
         return mLife;
     }
 
+    public int getHeight() {
+        return mImage.getHeight();
+    }
+
     private void grow() {
         Double newSize = (mLife / (double)Utils.INIT_LIFE) * mSize;
         mImage = scaleBitmapBySize(newSize.intValue());

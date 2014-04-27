@@ -1,4 +1,4 @@
-package com.ivan.snowball;
+package com.ivan.snowball.control;
 
 import com.ivan.snowball.model.BackGround;
 import com.ivan.snowball.model.Ball;
