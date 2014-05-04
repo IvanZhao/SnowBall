@@ -1,4 +1,4 @@
-package com.ivan.snowball.utils;
+package com.ivan.snowball.model.inf;
 
 public interface GameOverListener {
 

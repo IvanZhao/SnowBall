@@ -1,7 +1,7 @@
 package com.ivan.snowball.model;
 
 import com.ivan.snowball.R;
-import com.ivan.snowball.utils.GameOverListener;
+import com.ivan.snowball.model.inf.GameOverListener;
 import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.utils.Utils.Hurts;
 
@@ -12,9 +12,10 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class Ball extends Element {
-    private float SPEED0 = 10;
+    private double SPEED0 = 10;
     private int mLife = Utils.INIT_LIFE;
     private int mSize = 0;
     private int mDistance = 0;
@@ -131,10 +132,10 @@ public class Ball extends Element {
         return x.floatValue();
     }
 
-    private float calcSpeed0() {
-        int s = (mCanvasHeight - mImage.getHeight() -
-                4 * mGround.getFloorHeight()) / 100;
-        float t = 10f / 9.8f;
+    private double calcSpeed0() {
+        double s = (mCanvasHeight - mCanvasHeight / 6 -
+                4 * mGround.getFloorHeight()) / Utils.ENLARGE_RATE;
+        double t = 10 / 9.8;
         return (s - Utils.G * t * t) / t;
     }
 
@@ -278,5 +279,21 @@ public class Ball extends Element {
                 mCanvasHeight - mGround.getFloorHeight() -
                 mImage.getHeight());
         mPosition = new Point(mBlockPosition.x, mBlockPosition.y);
+    }
+
+    public int getTop() {
+        return mPosition.y;
+    }
+
+    public int getLeft() {
+        return mPosition.x;
+    }
+
+    public int getRight() {
+        return mPosition.x + mImage.getWidth();
+    }
+
+    public int getBottom() {
+        return mPosition.y + mImage.getHeight();
     }
 }

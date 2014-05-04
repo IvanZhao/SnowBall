@@ -6,7 +6,7 @@ import com.ivan.snowball.model.BackGround;
 import com.ivan.snowball.model.Ball;
 import com.ivan.snowball.model.Ground;
 import com.ivan.snowball.model.HealthPoint;
-import com.ivan.snowball.utils.GameOverListener;
+import com.ivan.snowball.model.inf.GameOverListener;
 import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.view.CanvasView;
 
@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,7 +53,7 @@ public class MainActivity extends Activity implements OnClickListener,
                 dm.heightPixels, dm.widthPixels);
         mGround = new Ground(this,
                 Utils.scaleBitmapByHeight(this,
-                        R.drawable.land, 0),
+                        R.drawable.land, dm.heightPixels / 10),
                 dm.heightPixels, dm.widthPixels);
         mBall = new Ball(this,
                 Utils.scaleBitmapByHeight(this,
@@ -61,10 +62,28 @@ public class MainActivity extends Activity implements OnClickListener,
         mBall.setGameOverListener(this);
         mGC = new GameController(mBackGround, mGround, mBall);
         mHP = new HealthPoint(this, dm.heightPixels, dm.widthPixels, mBall);
-        Utils.MAX_HEIGHT = dm.heightPixels - mBall.getHeight() -
+        Utils.MAX_HEIGHT = dm.heightPixels - dm.heightPixels / 6 -
                 4 * mGround.getFloorHeight();
         mOC = new ObstacleController(this, mBall, mGround,
                 dm.heightPixels, dm.widthPixels);
+    }
+
+    @Override
+    protected void onPause() {
+        mGC.gamePause(mCanvasView);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        mGC.gameResume(mCanvasView);
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mGC.gameStop(mCanvasView);
+        super.onDestroy();
     }
 
     public BackGround getBackgroundObject() {

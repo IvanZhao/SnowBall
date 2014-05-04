@@ -1,4 +1,4 @@
-package com.ivan.snowball.model;
+package com.ivan.snowball.model.inf;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

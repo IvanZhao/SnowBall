@@ -26,4 +26,16 @@ public class GameController {
     public void gameStart(CanvasView view) {
         view.startGame();
     }
+
+    public void gameStop(CanvasView view) {
+        view.stopGame();
+    }
+
+    public void gamePause(CanvasView view) {
+        view.pauseGame();
+    }
+
+    public void gameResume(CanvasView view) {
+        view.resumeGame();
+    }
 }

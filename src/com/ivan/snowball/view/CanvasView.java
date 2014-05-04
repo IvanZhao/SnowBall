@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -19,6 +20,9 @@ public class CanvasView extends SurfaceView implements Callback,
     private SurfaceHolder mSurfaceHolder = null;
     private Thread mThread = null;
     private Paint mPaint = null;
+    private boolean mRun = false;
+    private boolean mPause = false;
+    private Object mLock = new Object();
 
     public CanvasView(Context context) {
         super(context);
@@ -49,20 +53,40 @@ public class CanvasView extends SurfaceView implements Callback,
     private void draw() {
         mActivity.getBackgroundObject().moveAndDraw(mCanvas, mPaint);
         mActivity.getGroundObject().moveAndDraw(mCanvas, mPaint);
+        mActivity.getObstacleController().moveAndDraw(mCanvas, mPaint);
         mActivity.getBallObject().moveAndDraw(mCanvas, mPaint);
         mActivity.getHPObject().moveAndDraw(mCanvas, mPaint);
-        mActivity.getObstacleController().moveAndDraw(mCanvas, mPaint);
     }
 
     public void startGame() {
+        mRun = true;
+        mPause = false;
         mThread = new Thread(this);
         mThread.start();
     }
 
+    public void stopGame() {
+        mRun = false;
+        mPause = false;
+    }
+
+    public void pauseGame() {
+        mRun = true;
+        mPause = true;
+    }
+
+    public void resumeGame() {
+        mRun = true;
+        synchronized(mLock) {
+            if(mPause) {
+                mLock.notify();
+            }
+            mPause = false;
+        }
+    }
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mThread = new Thread(this);
-        mThread.start();
+        startGame();
     }
 
     @Override
@@ -78,7 +102,10 @@ public class CanvasView extends SurfaceView implements Callback,
     @Override
     public void run() {
         try {
-            while(mActivity.getBallObject().isAlive()) {
+            while(mRun && mActivity.getBallObject().isAlive()) {
+                if(mPause) {
+                    mLock.wait();
+                }
                 mCanvas = mSurfaceHolder.lockCanvas();
                 draw();
                 mSurfaceHolder.unlockCanvasAndPost(mCanvas);

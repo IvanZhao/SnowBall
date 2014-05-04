@@ -1,5 +1,6 @@
 package com.ivan.snowball.model;
 
+import com.ivan.snowball.model.inf.ElementInterface;
 import com.ivan.snowball.utils.Utils;
 import com.ivan.snowball.utils.Utils.Gears;
 

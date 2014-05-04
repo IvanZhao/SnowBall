@@ -13,7 +13,7 @@ public class Utils {
 
     public static enum Hurts{DRY_LAND, WATER, FALL, SMALL_TREE, BIG_TREE,
         VILLAGE};
-    public static final int[] HurtValue = {1, 2, 10, 20, 50, 80};
+    public static final int[] HurtValue = {1, 2, 4, 8, 10, 20};
 
     public static final int MAX_LIFE = 200;
     public static final int INIT_LIFE = 80;

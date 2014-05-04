@@ -8,13 +8,15 @@ import java.util.Set;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 import com.ivan.snowball.model.Ball;
-import com.ivan.snowball.model.ElementInterface;
 import com.ivan.snowball.model.Ground;
 import com.ivan.snowball.model.Obstacle;
-import com.ivan.snowball.model.ObstacleCallBackListener;
 import com.ivan.snowball.model.Tree;
+import com.ivan.snowball.model.inf.ElementInterface;
+import com.ivan.snowball.model.inf.GameProcessController;
+import com.ivan.snowball.model.inf.ObstacleCallBackListener;
 
 public class ObstacleController implements ElementInterface,
         ObstacleCallBackListener {
@@ -25,22 +27,7 @@ public class ObstacleController implements ElementInterface,
     private int mCanvasW;
     private Ball mBall = null;
     private Ground mGround;
-
-    private Thread mCreateObstacleThread = new Thread() {
-
-        @Override
-        public void run() {
-            while(mBall.isAlive()) {
-                mObstacleSet.add(new Tree(mContext, mCanvasH, mCanvasW,
-                        mGround, ObstacleController.this));
-                try {
-                    this.sleep(6000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
+    private static Object mLock = new Object();
 
     public ObstacleController(Context c, Ball ball,
             Ground ground, int canvasH, int canvasW) {
@@ -53,36 +40,51 @@ public class ObstacleController implements ElementInterface,
         init();
     }
 
+    public void addObstacle() {
+        mObstacleSet.add(new Tree(mContext, mCanvasH, mCanvasW, mGround, mBall,
+                ObstacleController.this));
+    }
+
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        Iterator it = mObstacleSet.iterator();
-        while(it.hasNext()) {
-            ((Obstacle) it.next()).draw(canvas, paint);
+        synchronized(mLock) {
+            for(int i = 0; i < mObstacleSet.size(); i++) {
+                mObstacleSet.get(i).draw(canvas, paint);
+            }
         }
     }
 
     @Override
     public void move() {
-        Iterator it = mObstacleSet.iterator();
-        while(it.hasNext()) {
-            ((Obstacle) it.next()).move();
+        synchronized(mLock) {
+            for(int i = 0; i < mObstacleSet.size(); i++) {
+                mObstacleSet.get(i).move();
+            }
         }
     }
 
     @Override
     public void init() {
-        mObstacleSet.clear();
-        mCreateObstacleThread.start();
+        synchronized(mLock) {
+            mObstacleSet.clear();
+        }
     }
 
     @Override
     public void onMoveOut(Obstacle item) {
-        mObstacleSet.remove(item);
+        synchronized(mLock) {
+            mObstacleSet.remove(item);
+        }
     }
 
     @Override
     public void moveAndDraw(Canvas canvas, Paint paint) {
-        draw(canvas, paint);
-        move();
+        synchronized(mLock) {
+            draw(canvas, paint);
+            move();
+            if(mBall.getDistance() % 300 == 0) {
+                addObstacle();
+            }
+        }
     }
 }
